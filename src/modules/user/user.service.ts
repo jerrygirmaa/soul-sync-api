@@ -9,20 +9,20 @@ export class UserService {
     if (!userInfo.email) {
       throw new Error('Email is required to find or create a user');
     }
-    const user = await this.prisma.user.findUnique({
+    const existingUser = await this.prisma.user.findUnique({
       where: { email: userInfo.email },
     });
     console.log('Received User Info:', userInfo);
 
-    if (user) {
+    if (existingUser) {
       // Update the imageUrl if it has changed
-      if (user.imageUrl !== userInfo.imageUrl) {
+      if (existingUser.imageUrl !== userInfo.imageUrl) {
         return this.prisma.user.update({
           where: { email: userInfo.email },
           data: { imageUrl: userInfo.imageUrl },
         });
       }
-      return user;
+      return existingUser;
     }
 
     // Create user if not found
@@ -38,18 +38,23 @@ export class UserService {
 
     // Create an account for the user
     const newAccount = await this.prisma.account.create({
-      data: {
-        name: accountName,
-        userId: newUser.uuid as string,
-      },
+      data: { name: accountName },
     });
 
-    // Create the "Owner" role for the user in the new account
-    await this.prisma.role.create({
+    // Create a default role
+    const defaultRole = await this.prisma.role.create({
       data: {
         name: 'Owner',
         isDefault: true,
-        accountId: newAccount.uuid as string,
+      },
+    });
+
+    // Link account and user with the role
+    await this.prisma.accountUser.create({
+      data: {
+        accountId: newAccount.uuid,
+        userId: newUser.uuid,
+        roleId: defaultRole.uuid,
       },
     });
 
