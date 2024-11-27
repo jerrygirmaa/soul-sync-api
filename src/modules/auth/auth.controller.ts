@@ -1,28 +1,34 @@
-import { Controller, Post, Body, Get, Query } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Get('google/callback')
-  async googleCallback(@Query('code') authCode: string) {
-    console.log(authCode);
+  @Post('signup')
+  async googleSignup(
+    @Body('authCode') authCode: string,
+    @Body('accountName') accountName?: string,
+  ) {
     if (!authCode) {
       throw new Error('Auth code is required');
     }
-
-    const result = await this.authService.handleGoogleSignin(authCode);
+    console.log(authCode);
+    const result = await this.authService.handleGoogleSignup(
+      authCode,
+      accountName,
+    );
+    console.log(result);
     return result;
   }
 
-  @Post('google-signin')
-  async googleSignIn(@Body('authCode') authCode: string) {
+  @Post('login')
+  async login(@Body('authCode') authCode: string) {
     if (!authCode) {
       throw new Error('Auth code is required');
     }
 
-    // Call AuthService with authCode
-    const result = await this.authService.handleGoogleSignin(authCode);
+    const result = await this.authService.handleLogin(authCode);
     return result;
   }
 }
