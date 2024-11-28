@@ -9,24 +9,10 @@ export class UserService {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
-  async findOrCreateUser(
+  async CreateUser(
     userInfo: { email: string; imageUrl: string },
     accountName?: string,
   ) {
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: userInfo.email },
-    });
-
-    if (existingUser) {
-      if (existingUser.imageUrl !== userInfo.imageUrl) {
-        return this.prisma.user.update({
-          where: { email: userInfo.email },
-          data: { imageUrl: userInfo.imageUrl },
-        });
-      }
-      return existingUser;
-    }
-
     const newUser = await this.prisma.user.create({
       data: {
         email: userInfo.email,

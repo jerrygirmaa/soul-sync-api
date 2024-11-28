@@ -13,12 +13,10 @@ export class AuthController {
     if (!authCode) {
       throw new Error('Auth code is required');
     }
-    console.log(authCode);
     const result = await this.authService.handleGoogleSignup(
       authCode,
       accountName,
     );
-    console.log(result);
     return result;
   }
 

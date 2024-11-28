@@ -42,7 +42,7 @@ export class AuthService {
       throw new Error('Google account does not have an email address');
     }
 
-    const user = await this.userService.findOrCreateUser(
+    const user = await this.userService.CreateUser(
       { email, imageUrl },
       accountName,
     );
